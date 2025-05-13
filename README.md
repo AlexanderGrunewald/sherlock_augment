@@ -21,8 +21,8 @@ AugmentV1 is a Python package for detecting recycling codes in images and augmen
 ### From Source
 
 ```bash
-git clone https://github.com/bosch/augmentv1.git
-cd augmentv1
+git clone https://github.com/AlexanderGrunewald/sherlock_augment.git
+cd sherlock_augment
 pip install -e .
 ```
 
@@ -97,7 +97,7 @@ augmentation:
     - contrast
     - swap_labels
   augmentations_per_image: 3
-
+# To be implemented
 model:
   architecture: yolo
   input_size: [416, 416]

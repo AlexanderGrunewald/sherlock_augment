@@ -89,7 +89,7 @@ def create_parser() -> argparse.ArgumentParser:
         help="Configuration file path"
     )
     augment_parser.add_argument(
-        "--augmentations", "-a", type=int, default=3,
+        "--augmentations", "-a", type=int, default=None,
         help="Number of augmentations per image"
     )
     augment_parser.add_argument(
@@ -166,9 +166,26 @@ def augment_dataset(args: argparse.Namespace) -> int:
         # Create output directory if it doesn't exist
         os.makedirs(args.output_dir, exist_ok=True)
 
+        # Determine augmentation parameters
+        augmentations_per_image = args.augmentations
+        techniques = args.techniques
+
+        # Use configuration values if available
+        if config:
+            # Use config values if command-line args are not provided
+            if not args.augmentations and config.get('augmentation.augmentations_per_image'):
+                augmentations_per_image = config.get('augmentation.augmentations_per_image')
+                info(f"Using {augmentations_per_image} augmentations per image from config")
+
+            if not args.techniques and config.get('augmentation.techniques'):
+                techniques = config.get('augmentation.techniques')
+                info(f"Using techniques from config: {', '.join(techniques)}")
+
         # Augment dataset
-        info(f"Augmenting dataset with {args.augmentations} augmentations per image...")
-        augmented_dataset = augmenter.augment_dataset(augmentations_per_image=args.augmentations, techniques=args.techniques)
+        if not augmentations_per_image:
+            augmentations_per_image = 3
+        info(f"Augmenting dataset with {augmentations_per_image} augmentations per image...")
+        augmented_dataset = augmenter.augment_dataset(augmentations_per_image=augmentations_per_image, techniques=techniques)
 
         # Save augmented images and annotations
         info(f"Saving augmented dataset to {args.output_dir}...")

@@ -1,12 +1,7 @@
 augmentation:
-  augmentations_per_image: 3
+  augmentations_per_image: 5
   enabled: true
   techniques:
-  - horizontal_flip
-  - vertical_flip
-  - rotation
-  - brightness
-  - contrast
   - swap_labels
 data:
   image_dir: data/raw/train
