@@ -13,7 +13,6 @@ AugmentV1 is a Python package for detecting recycling codes in images and augmen
   - Cutout/random erasing
   - Packaging label swapping (replace existing labels with new ones)
 - Configurable via YAML or JSON configuration files
-- Comprehensive logging system
 - Command-line interface for common operations
 
 ## Installation
