@@ -351,7 +351,7 @@ class RecyclingCodeExtractor:
 
 
 if __name__ == "__main__":
-    img_dir = r"C:\Users\alexg\Documents\Work\bosch\augmentv1\data\raw\train"
+    img_dir = r"/data/raw/train"
     data_loader = DataLoader(image_dir=img_dir)
     data_loader.load_images()
     code_extractor = RecyclingCodeExtractor(data_loader.image_dataset)
