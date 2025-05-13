@@ -41,21 +41,7 @@ class PixelBoundingBox:
         yield self.cls
 
 
-class LabelDataset:
-    """Handles loading and storing label data."""
 
-    def __init__(self, label_dir: Union[str, Path]):
-        self.label_dir = Path(label_dir)
-        self.labels: List[str] = []
-
-    def load_labels(self) -> List[str]:
-        """Loads labels from the label directory. To be implemented."""
-        raise NotImplementedError("Label loading not implemented.")
-
-    def get_random_label(self) -> str:
-        if not self.labels:
-            raise ValueError("Labels have not been loaded yet.")
-        return random.choice(self.labels)
 
 
 class ImageDataset:
@@ -164,6 +150,32 @@ class ImageDataset:
     def __len__(self) -> int:
         return len(self.images)
 
+class LabelDataset:
+    """Handles loading and storing label data."""
+
+    def __init__(self, label_dir: Union[str, Path] = None, image_ds: ImageDataset = None):
+        self.label_dir = Path(label_dir) if label_dir else None
+        self.label_data = defaultdict(list)
+        self.labels = None
+        self.image_ds = image_ds
+
+    def load_labels(self):
+        """Loads labels from the label directory. To be implemented."""
+        if not self.label_dir:
+
+            if not self.image_ds:
+                raise ValueError("Images must be loaded before loading labels.")
+
+            extractor = RecyclingCodeExtractor(self.image_ds)
+            extractor.extract_code()
+            self.labels = extractor.class_to_crops
+        else:
+            raise NotImplementedError("No label loading from dir implemented.")
+    def get_random_label(self) -> str:
+        if not self.labels:
+            raise ValueError("Labels have not been loaded yet.")
+        return random.choice(self.labels)
+
 
 class DataLoader:
     """Coordinates loading of image and label datasets."""
@@ -194,8 +206,14 @@ class DataLoader:
     def load_labels(self) -> None:
         """Load only labels."""
         if not self.label_dataset:
-            raise ValueError("LabelDataset not initialized.")
-        self.labels = self.label_dataset.load_labels()
+            try:
+                self.label_dataset = LabelDataset(image_ds=self.image_dataset)
+                self.label_dataset.load_labels()
+                self.labels = self.label_dataset.labels
+            except ValueError:
+                raise ValueError("LabelDataset or Image Data not initialized.")
+        else:
+            self.label_dataset.load_labels()
 
     def get_images(self) -> Optional[List[Tuple[str, any]]]:
         return self.images
@@ -203,7 +221,7 @@ class DataLoader:
     def get_labels(self) -> Optional[List[str]]:
         return self.labels
 
-    def query(self, by: str, value) -> list:
+    def query(self, by: str, value) -> tuple:
         """
         Query image or bounding box data by class or filename.
 
@@ -229,7 +247,7 @@ class DataLoader:
             for fname, img, boxes in self.image_dataset:
                 if fname == value:
                     return [(box.cls, box) for box in boxes], img
-            return []
+            return [], None
 
         else:
             raise ValueError("Invalid query type. Use 'class' or 'filename'.")

@@ -1,0 +1,2 @@
+[console_scripts]
+augmentv1 = augmentv1.cli:main

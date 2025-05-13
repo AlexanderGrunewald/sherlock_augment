@@ -1,0 +1,25 @@
+augmentation:
+  augmentations_per_image: 3
+  enabled: true
+  techniques:
+  - horizontal_flip
+  - vertical_flip
+  - rotation
+  - brightness
+  - contrast
+  - swap_labels
+data:
+  image_dir: data/raw/train
+  image_ext: png
+  label_dir: data/raw/train
+  label_ext: txt
+logging:
+  file: logs/augmentv1.log
+  level: INFO
+model:
+  architecture: yolo
+  batch_size: 16
+  epochs: 100
+  input_size:
+  - 416
+  - 416
